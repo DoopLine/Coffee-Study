@@ -1,0 +1,133 @@
+@font-face {
+    font-family: "Lobster";
+    src: url("./font/Lobster-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Fira Sans Extra Condensed";
+    src: url("./font/FiraSansExtraCondensed-Regular.ttf");
+}
+
+/*
+    basic setup
+*/
+html{
+    box-shadow: inset 0 0 4px var(--tertiary-color);
+}
+:root {
+    --primary-color: #4a4e69;
+    --primary-transparent-color: rgba(74, 78, 105, .3);
+    --secondary-color: #22223b;
+    --secondary-transparent-color: rgba(34, 34, 59, .3);
+    --tertiary-color: #ffffffb5;
+    --contrast-color: #f2e9e4;
+    /* default colors*/
+    --danger-color: #cb1c22;
+    --danger-secondary-color: #f63f45;
+    --success-color: #039c43;
+    --success-secondary-color: #11bf5a;
+    --alert-color: #e38924;
+    --alert-secondary-color: #ffd543;
+    /* gradient*/
+    --bg-gradient: linear-gradient(rgba(74, 78, 105, .7), rgba(34, 34, 59, .7));
+    --before-gradient: linear-gradient(316deg,#9a8c98, #f2e9e4);
+    /*medida*/
+    --smallest-gap: .25rem;
+    --small-gap: 1rem;
+    --medium-gap: 2rem;
+    --large-gap: 4rem;
+    --largest-gap: 6rem;
+    --big-gap: 10rem;
+}
+
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+::-webkit-scrollbar{
+    background-color: var(--primary-transparent-color);
+    width: .5rem;
+}
+
+::-webkit-scrollbar-thumb{
+    background-color: var(--secondary-transparent-color);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover{
+    background-color: var(--secondary-color);
+}
+/*---------------------*/
+
+html,
+body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+    color: #333;
+    box-sizing: border-box;
+    background-image: var(--bg-gradient), url("./img/main-bg.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: right;
+    font-family: 'Fira Sans Extra Condensed', sans-serif;
+    -webkit-user-select: none;
+}
+
+
+
+a {
+    color: rgb(0, 100, 200);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: rgb(0, 80, 160);
+}
+
+label {
+    display: block;
+}
+
+input,
+button,
+select,
+textarea {
+    font-family: inherit;
+    font-size: inherit;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+input:disabled {
+    color: #ccc;
+}
+
+input[type="range"] {
+    height: 0;
+}
+
+
+button {
+    background-color: #f4f4f4;
+    outline: none;
+}
+
+button:active {
+    background-color: #ddd;
+}
+
+button:focus {
+    border-color: #666;
+}

@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+public/bundle.*
+.vscode/
+
+#my ignores
+backups/
+dist/
+ingles.txt
+
