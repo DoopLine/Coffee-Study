@@ -1,4 +1,7 @@
 <script>
+    /*
+        testar o svelte virtual scroll ou usar paginação;
+    */
     import {createEventDispatcher, onDestroy} from 'svelte';
     import { fade } from 'svelte/transition';
     import { flip } from 'svelte/animate';
@@ -9,36 +12,35 @@
     //*Components
     import Button from '../../components/Button.svelte';
     import Modal from '../../components/Modal.svelte';
+    import Popup from '../../components/Popup.svelte';
     import HexDotsLoading from '../../components/HexDotsLoading.svelte';
     import CSCard from '../../components/coffee-study/CSCard.svelte';
     import CSLessonItem from '../../components/coffee-study/CSLessonItem.svelte';
     import CSLessonForm from '../../components/coffee-study/CSLessonForm.svelte';
     import LessonsToolBar from './LessonsToolBar.svelte';
+
+
     export let currentDeckId;
 
     const dispatch = createEventDispatcher();
-    let pagination = {
-        interval: 30,
-        init: 0,
-        maxReached: false
-    };
-    pagination.init = pagination.interval;
-    let lessons = [];
+
     let currentDeck = {};
-    let currentDeckIndex;
+    let lessons = [];
     let arrfiteredLessons = [];
     let currentLesson = null;
     let input='';
+    let lessonToDeleteId = '';
 
+    //Visibility vars
     let modalState = false;
     let turnDark = false;
+    let popupState = false;
+
     // let isSpinnerOpened = true;
 
     const unDecksStore = decksStore.subscribe( allDecks =>{
         currentDeck = allDecks.find(dk => dk.id === currentDeckId);
-        currentDeckIndex = allDecks.findIndex(dk => dk.id === currentDeckId);
-        currentDeck.lessons.sort((a, b)=> a.learnCount - b.learnCount);
-        lessons = currentDeck.lessons.slice(0, pagination.interval);
+        lessons = currentDeck.lessons.sort((a, b)=> a.learnCount - b.learnCount);
     });
 
     onDestroy(() => {
@@ -46,58 +48,47 @@
         unDecksStore();
     });
 
-    function resetInfiniteScroll(){
-         pagination = {
-            init: 0,
-            interval: 30,
-            maxReached: false
-        };
-    }
-    function addLesson(evt){
-        const newLesson = evt.detail;
+
+    function addLesson({detail}){
+        const newLesson = detail;
         modalState = false;
-        decksStore.addLesson(currentDeckIndex, currentDeck, newLesson);
-        lessons = currentDeck.lessons;
+        decksStore.addLesson(currentDeck, newLesson);
     }
+    
     function editLesson(evt){
         const {front, back} = evt.detail;
         currentLesson.front = front;
         currentLesson.back = back;
         decksStore.editLesson(currentDeck, currentLesson);
         currentLesson = null;
-        lessons = currentDeck.lessons;
         modalState = false;
     }
 
-    function deleteLesson(id){
-        decksStore.deleteLesson(currentDeck, id);
-        lessons = currentDeck.lessons;
+    function onWillDeleteLesson(id){
+        lessonToDeleteId = id; 
+        popupState = !popupState;
+    }
+
+
+    function deleteLesson() {
+        decksStore.deleteLesson(currentDeck, lessonToDeleteId);
+        lessonToDeleteId = null;
+        popupState = !popupState;
     }
 
     function onScroll(evt){
         dispatch('turndark', evt.target.scrollTop);
         if(evt.target.scrollTop > 0 && turnDark === false) turnDark = true;
         if(evt.target.scrollTop <= 0) turnDark = false;
-        infiniteScroll(evt, input ? arrfiteredLessons : currentDeck.lessons);
     }
+    
     function filterByFront(evt){
-        resetInfiniteScroll(); 
         document.getElementById('lessonsSection').scrollTop = 0;
         input = evt.target.value.toLowerCase().trim();
         arrfiteredLessons = currentDeck.lessons.filter( l => l.front.toLowerCase().includes(input));
-        lessons = arrfiteredLessons.slice(0, pagination.interval);
+        lessons = arrfiteredLessons;
     }
 
-    function infiniteScroll(evt, arr){
-        const fullScroll = evt.target.scrollHeight;
-        const scrollPosition = evt.target.scrollTop;
-
-        if(fullScroll === scrollPosition + evt.target.clientHeight && pagination.maxReached === false){
-            pagination.init = pagination.init + pagination.interval,
-            lessons = arr.slice(0, pagination.init);
-            pagination.maxReached = pagination.init >= arr.length;
-        }
-    }
 </script>
 <style>
     .container{
@@ -146,22 +137,28 @@
     on:scroll={onScroll} class:m-top={turnDark}>
         {#each lessons as lesson, i (lesson.id)} 
             <div style="width: 100%;" animate:flip={{duration: 600}}>
-                <CSLessonItem {lesson} on:delete={()=> {deleteLesson(lesson.id)}}
+                <CSLessonItem {lesson} on:delete={()=> {onWillDeleteLesson(lesson.id)}}
                 on:edit={()=> {modalState = true; currentLesson = lesson}} />
             </div>
         {:else}
             <CSCard>Sem lessons! comece já adicionar</CSCard>
         {/each}
-        <!-- <VirtualList items={lessons} let:lesson>
-            <CSLessonItem {lesson} on:delete={()=> {deleteLesson(lesson.id)}}
-                on:edit={()=> {modalState = true; currentLesson = lesson}} />
-        </VirtualList> -->
     </section>
 </div>
+
 
 {#if modalState}
     <Modal on:closemodal={()=> modalState = false} title="Editar Lesson">
         <CSLessonForm {currentLesson} on:save={addLesson} on:edit={editLesson}
         on:cancel={()=> modalState = false} />
     </Modal>
+{/if}
+
+<!-- Popup that delete the lesson -->
+{#if popupState}
+    <Popup content="Uma vez apagado não é possivel recuperar!" title="Tens certeza?" 
+    on:closepopup={()=> popupState = false}>
+        <Button evt="cancel" on:cancel="{()=> popupState = false}">Cancelar</Button>
+        <Button evt="delete" on:delete={deleteLesson}>Apagar</Button>
+    </Popup>
 {/if}

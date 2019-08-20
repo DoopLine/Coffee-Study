@@ -8,7 +8,7 @@ export default class Persistence{
      * @param {Deck} decks o deck a ser salvo
      */
     static saveDecks(decks){
-        localStorage.setItem("decks", JSON.stringify(decks));
+        // localStorage.setItem("decks", JSON.stringify(decks));
     }
     
     /**
@@ -24,7 +24,7 @@ export default class Persistence{
      * @param {Config} config
      */
     static saveConfig(config){
-        localStorage.setItem("config", JSON.stringify(config));
+        // localStorage.setItem("config", JSON.stringify(config));
     }
 
     /**
@@ -40,7 +40,7 @@ export default class Persistence{
      * @param {state} state
      */
     static saveState(state){
-        localStorage.setItem("state", JSON.stringify(state));
+        // localStorage.setItem("state", JSON.stringify(state));
     }
 
     /**

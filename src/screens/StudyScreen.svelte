@@ -191,7 +191,7 @@
     }
     .study-card{
         display: flex;
-        align-items: center;
+        /* align-items: center; */
         text-align: center;
         background-color: var(--primary-color);
         color: var(--contrast-color);
@@ -199,7 +199,8 @@
         padding: 1rem;
         margin: 2rem 3vw;
         overflow-y: overlay;
-        min-height: 14rem;
+        word-break: break-word;
+        /* min-height: 14rem; */
         max-height: 14rem;
         box-shadow: 0 0 6px var(--secondary-transparent-color);
         font-size: x-large;

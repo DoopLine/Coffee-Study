@@ -21,7 +21,7 @@ newMenuItem("Toggle Dev Tools", "CmdOrCtrl+D", "toggledevtools");
 /**
  * Backup directory
  */
-let isDev = false;
+let isDev = true;
 const backupPath = isDev ? join(`${__dirname}`, 'backups') : join(`${app.getPath('documents')}`, 'CSbackups');
 
 function newMenuItem(label, accelerator, role) {

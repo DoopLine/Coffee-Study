@@ -6,20 +6,8 @@ import {
 // import Lesson from "../model/Lesson";
 import Persistence from "./Persistence";
 
-// const fs = require('fs');
-
-// Não apagar este codigo;
-// function reqDeck() {
-//     const deck = JSON.parse(fs.readFileSync('ingles.txt'));
-//     const newDeck = new Deck(deck.info._nome, deck.info._descricao);
-//     deck.lessons.forEach(l => {
-//         const newLesson = new Lesson(l.sentence, l.resposta);
-//         newLesson.setLearnCount(l.learnCount);
-//         customDecksStore.addLesson(newDeck, newLesson);
-//     });
-// }
-
 const decks = writable(Persistence.getDecks());
+
 
 const customDecksStore = {
     subscribe: decks.subscribe,
@@ -43,28 +31,21 @@ const customDecksStore = {
     //*----------------->
     //*Lessons methods-->
     //*----------------->
-    addLesson: (deckIndex, deck, lesson) => decks.update(allDecks => {
-        deck.lessons.push(lesson);
-        allDecks.splice(deckIndex, 1, deck);
+    addLesson: (currentDeck, lesson) => decks.update(allDecks => {
+        currentDeck.lessons.push(lesson);
         Persistence.saveDecks(allDecks);
         return allDecks;
     }),
-    editLesson: (deck, lesson) => decks.update(allDecks => {
-        const allDecksWorking = [...allDecks];
-        const deckIndex = allDecksWorking.findIndex(d => d.id === deck.id);
-        const lessonIndex = deck.lessons.findIndex(l => l.id === lesson.id);
-        deck.lessons.splice(lessonIndex, 1, lesson);
-        allDecksWorking.splice(deckIndex, 1, deck);
-        Persistence.saveDecks(allDecksWorking);
-        return allDecksWorking;
+    editLesson: (currentDeck, lesson) => decks.update(allDecks => {
+        const lessonIndex = currentDeck.lessons.findIndex(l => l.id === lesson.id);
+        currentDeck.lessons.splice(lessonIndex, 1, lesson);
+        Persistence.saveDecks(allDecks);
+        return allDecks;
     }),
-    deleteLesson: (deck, id) => decks.update(allDecks => {
-        const allDecksWorking = [...allDecks];
-        const deckIndex = allDecksWorking.findIndex(d => d.id === deck.id);
-        deck.lessons = deck.lessons.filter(l => l.id !== id);
-        allDecksWorking.splice(deckIndex, 1, deck);
-        Persistence.saveDecks(allDecksWorking);
-        return allDecksWorking;
+    deleteLesson: (currentDeck, lessonId) => decks.update(allDecks => {
+        currentDeck.lessons = currentDeck.lessons.filter(l => l.id !== lessonId);
+        Persistence.saveDecks(allDecks);
+        return allDecks;
     }),
     updateLearnCount: (deck, arrWillUpdateLessons) => decks.update(allDecks => {
         const allDecksWorking = [...allDecks];
