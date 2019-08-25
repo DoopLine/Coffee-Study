@@ -1,11 +1,8 @@
 <script>
-    /*
-        testar o svelte virtual scroll ou usar paginação;
-    */
     import {createEventDispatcher, onDestroy} from 'svelte';
     import { fade } from 'svelte/transition';
     import { flip } from 'svelte/animate';
-    // import VirtualList from '@sveltejs/svelte-virtual-list';
+    // import VirtualList from '@sveltejs/svelte-virtual-list'; remover a dependencia
     //*Stores
     import decksStore from '../../data/decks.store';    
     //------
@@ -18,6 +15,8 @@
     import CSLessonItem from '../../components/coffee-study/CSLessonItem.svelte';
     import CSLessonForm from '../../components/coffee-study/CSLessonForm.svelte';
     import LessonsToolBar from './LessonsToolBar.svelte';
+    //*Pagination
+    import PaginationCounter from '../../components/Pagination/PaginationCounter/index.svelte';
 
 
     export let currentDeckId;
@@ -36,7 +35,12 @@
     let turnDark = false;
     let popupState = false;
 
-    // let isSpinnerOpened = true;
+    // Pagination
+    let inter = 20;
+    let start = 0;
+    let end = inter;
+    let currentPosition = 1;
+    $:totalPages = Math.round(lessons.length / inter) !== 0 ? Math.round(lessons.length / inter) : 1;
 
     const unDecksStore = decksStore.subscribe( allDecks =>{
         currentDeck = allDecks.find(dk => dk.id === currentDeckId);
@@ -85,8 +89,16 @@
     function filterByFront(evt){
         document.getElementById('lessonsSection').scrollTop = 0;
         input = evt.target.value.toLowerCase().trim();
+        resetPaginationValues();
         arrfiteredLessons = currentDeck.lessons.filter( l => l.front.toLowerCase().includes(input));
         lessons = arrfiteredLessons;
+    }
+
+    //pAGINATION
+    function resetPaginationValues(){
+        start = 0;
+        end = inter;
+        currentPosition = 1;
     }
 
 </script>
@@ -102,7 +114,7 @@
     }
 
     section{
-        margin: 9rem 1rem 3rem 1rem;
+        margin: 9rem 1rem 1rem 1rem;
         height: 100vh;
         color: white;
         display: flex;
@@ -110,16 +122,10 @@
         align-content: center;
         overflow: hidden;
         overflow-y: overlay;
-        height: calc(100vh - 9.5rem);
+        height: calc(100vh - 13rem);
         padding-right: 1rem;
         transition: transform .3s;
     }
-
-    .m-top{
-        margin-top: 7rem;
-    }
-
-    
 
     @media (max-width: 430px){
         section{
@@ -134,8 +140,8 @@
     on:input={filterByFront} {turnDark} />
 
     <section id="lessonsSection" transition:fade 
-    on:scroll={onScroll} class:m-top={turnDark}>
-        {#each lessons as lesson, i (lesson.id)} 
+    on:scroll={onScroll} >
+        {#each lessons.slice(start, end) as lesson, i (lesson.id)} 
             <div style="width: 100%;" animate:flip={{duration: 600}}>
                 <CSLessonItem {lesson} on:delete={()=> {onWillDeleteLesson(lesson.id)}}
                 on:edit={()=> {modalState = true; currentLesson = lesson}} />
@@ -144,6 +150,12 @@
             <CSCard>Sem lessons! comece já adicionar</CSCard>
         {/each}
     </section>
+    <!-- Need refactoring -->
+    <div style="display: flex; justify-content: center; align-items: center; margin: 1rem;">
+        <Button evt="prev" on:prev={()=> {if(end > inter ) {start -= inter; end -= inter; currentPosition--}}}>Anterior</Button>
+        <p style="color: white; margin: 0 1rem;">{currentPosition}/{totalPages}</p>
+        <Button evt="nxt" on:nxt={()=> {if(lessons.length > end) {start += inter; end += inter; currentPosition++}}}>Proximo</Button>
+    </div>
 </div>
 
 
